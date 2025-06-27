@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nathanmatthews/pushbell.git"
+    "url": "https://github.com/ntmatthews/pushbell.git"
   },
   "keywords": [
     "notifications",
@@ -27,9 +27,9 @@
   "author": "Nathan Matthews",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nathanmatthews/pushbell/issues"
+    "url": "https://github.com/ntmatthews/pushbell/issues"
   },
-  "homepage": "https://nathanmatthews.github.io/pushbell",
+  "homepage": "https://ntmatthews.github.io/pushbell",
   "devDependencies": {
     "http-server": "^14.1.1",
     "gh-pages": "^6.1.1"
