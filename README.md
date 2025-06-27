@@ -1,12 +1,12 @@
 # PushBell - Cross-Browser Notification API Demo
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://nathanmatthews.github.io/pushbell)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://ntmatthews.github.io/pushbell)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Browser Support](https://img.shields.io/badge/Browser-Chrome%20%7C%20Firefox%20%7C%20Safari%20%7C%20Edge-blue)](https://nathanmatthews.github.io/pushbell)
+[![Browser Support](https://img.shields.io/badge/Browser-Chrome%20%7C%20Firefox%20%7C%20Safari%20%7C%20Edge-blue)](https://ntmatthews.github.io/pushbell)
 
 A comprehensive, production-ready demonstration of the Web Notifications API with cross-browser compatibility, enhanced features, and fallback mechanisms for unsupported browsers.
 
-## 🚀 [Live Demo](https://nathanmatthews.github.io/pushbell)
+## 🚀 [Live Demo](https://ntmatthews.github.io/pushbell)
 
 ## ✨ Features
 
@@ -179,7 +179,7 @@ pushbell/
 1. Push code to GitHub repository
 2. Go to repository Settings → Pages
 3. Select source branch (usually `main`)
-4. Your site will be available at `https://ntmatthews.github.io/pushbell`
+4. Your site will be available at `https://username.github.io/pushbell`
 
 ### Other Platforms
 
