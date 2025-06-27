@@ -29,6 +29,9 @@ class NotificationAPI {
 
         // Listen for permission changes
         this.watchPermissionChanges();
+
+        // WebKit and Safari compatibility enhancements
+        await this.initWebKitSupport();
     }
 
     /**
@@ -429,6 +432,66 @@ class NotificationAPI {
             icon: 'fas fa-globe',
             support: this.isSupported
         };
+    }
+
+    /**
+     * WebKit and Safari compatibility enhancements
+     */
+    async initWebKitSupport() {
+        // Safari-specific notification permission handling
+        if (this.isSafari()) {
+            // Override permission check for Safari
+            this.originalRequestPermission = Notification.requestPermission;
+            
+            // Add Safari-specific permission request
+            Notification.requestPermission = async () => {
+                return new Promise((resolve) => {
+                    if (this.originalRequestPermission.length === 0) {
+                        this.originalRequestPermission().then(resolve);
+                    } else {
+                        this.originalRequestPermission(resolve);
+                    }
+                });
+            };
+        }
+
+        // WebKit mobile detection and handling
+        if (this.isWebKitMobile()) {
+            this.setupWebKitMobileFallbacks();
+        }
+    }
+
+    /**
+     * Check if browser is Safari
+     */
+    isSafari() {
+        return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    }
+
+    /**
+     * Check if browser is WebKit mobile (iOS Safari, etc.)
+     */
+    isWebKitMobile() {
+        return /WebKit/.test(navigator.userAgent) && /Mobile/.test(navigator.userAgent);
+    }
+
+    /**
+     * Setup WebKit mobile-specific fallbacks
+     */
+    setupWebKitMobileFallbacks() {
+        // iOS doesn't support many notification features
+        this.isSupported.persistent = false;
+        this.isSupported.actions = false;
+        this.isSupported.badge = false;
+        this.isSupported.image = false;
+        this.isSupported.requireInteraction = false;
+        this.isSupported.vibrate = false;
+        
+        // Add touch feedback for mobile
+        document.addEventListener('touchstart', () => {
+            // Enable notifications on first touch for iOS
+            this.userInteracted = true;
+        });
     }
 
     // Event handlers (to be overridden by the app)

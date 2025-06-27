@@ -1,23 +1,35 @@
-# PushBell 🔔
+# PushBell - Cross-Browser Notification API Demo
 
-A comprehensive cross-browser notification API demo that showcases the Web Notifications API with enhanced features and fallbacks for maximum compatibility.
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://nathanmatthews.github.io/pushbell)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Browser Support](https://img.shields.io/badge/Browser-Chrome%20%7C%20Firefox%20%7C%20Safari%20%7C%20Edge-blue)](https://nathanmatthews.github.io/pushbell)
 
-## Features
+A comprehensive, production-ready demonstration of the Web Notifications API with cross-browser compatibility, enhanced features, and fallback mechanisms for unsupported browsers.
 
-- ✅ **Cross-Browser Compatibility** - Works on Chrome, Firefox, Safari, Edge, and Opera
-- ✅ **Service Worker Integration** - Enhanced notifications with action buttons
-- ✅ **Rich Notifications** - Support for images, badges, and custom styling
-- ✅ **Action Buttons** - Interactive notifications with custom actions
-- ✅ **Permission Management** - Graceful permission request handling
-- ✅ **Fallback Support** - In-app notifications when browser notifications are blocked
-- ✅ **Real-time Compatibility Display** - Shows what features work in your browser
-- ✅ **Activity Logging** - Track all notification events
-- ✅ **Responsive Design** - Beautiful UI that works on all devices
-- ✅ **Progressive Web App** - Offline support with service worker caching
+## 🚀 [Live Demo](https://nathanmatthews.github.io/pushbell)
 
-## Live Demo
+## ✨ Features
 
-Visit the live demo: [https://yourusername.github.io/pushbell](https://yourusername.github.io/pushbell)
+### Core Functionality
+- **Cross-Browser Compatibility**: Tested and optimized for Chrome, Firefox, Safari, Edge, and Opera
+- **Permission Management**: Smart permission requests with user-friendly messaging
+- **Multiple Notification Types**: Basic, rich, and action-based notifications
+- **Service Worker Integration**: Enhanced features with background processing
+- **Fallback Systems**: In-app notifications for unsupported browsers
+
+### Advanced Features
+- **Real-time Compatibility Detection**: Shows browser-specific feature support
+- **Custom Notification Builder**: User-configurable notification options
+- **Activity Logging**: Comprehensive logging system for debugging and monitoring
+- **Progressive Web App (PWA)**: Full PWA support with manifest and service worker
+- **Responsive Design**: Mobile-first design that works on all devices
+
+### Developer Experience
+- **VS Code Integration**: Optimized for VS Code development
+- **GitHub Actions Ready**: Automated deployment to GitHub Pages
+- **TypeScript Support**: Full type definitions included
+- **Modern Build Tools**: No complex build process required
+- **WebKit Optimized**: Enhanced Safari and iOS support
 
 ## Browser Support
 
@@ -38,7 +50,7 @@ Visit the live demo: [https://yourusername.github.io/pushbell](https://yourusern
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/pushbell.git
+   git clone https://github.com/ntmatthews/pushbell.git
    cd pushbell
    ```
 
@@ -167,7 +179,7 @@ pushbell/
 1. Push code to GitHub repository
 2. Go to repository Settings → Pages
 3. Select source branch (usually `main`)
-4. Your site will be available at `https://yourusername.github.io/pushbell`
+4. Your site will be available at `https://ntmatthews.github.io/pushbell`
 
 ### Other Platforms
 

@@ -440,6 +440,84 @@ footer {
     box-shadow: var(--shadow);
 }
 
+/* WebKit and Safari Specific Enhancements */
+@supports (-webkit-appearance: none) {
+    .btn {
+        -webkit-appearance: none;
+        appearance: none;
+        -webkit-border-radius: 8px;
+        border-radius: 8px;
+    }
+    
+    .input-group input,
+    .input-group textarea {
+        -webkit-appearance: none;
+        appearance: none;
+        -webkit-border-radius: 8px;
+        border-radius: 8px;
+    }
+}
+
+/* iOS Safari Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+    body {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    .btn,
+    .input-group input,
+    .input-group textarea {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    .input-group input,
+    .input-group textarea {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+    
+    /* Fix iOS Safari 100vh issue */
+    .container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* WebKit Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* WebKit Focus Styles */
+@media (-webkit-min-device-pixel-ratio: 1) {
+    .btn:focus,
+    .input-group input:focus,
+    .input-group textarea:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+        -webkit-box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
