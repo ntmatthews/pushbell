@@ -6,7 +6,7 @@
             <TileColor>#667eea</TileColor>
         </tile>
         <notification>
-            <polling-uri src="https://nathanmatthews.github.io/pushbell/notifications.xml"/>
+            <polling-uri src="https://ntmatthews.github.io/pushbell/notifications.xml"/>
             <frequency>30</frequency>
             <cycle>1</cycle>
         </notification>
