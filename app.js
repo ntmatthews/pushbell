@@ -737,7 +737,7 @@ class PushBellApp {
             }
 
             this.showStatus(`Sending ${type} notification...`, 'loading');
-            
+
             // Add haptic feedback for mobile
             if (this.isMobile && 'vibrate' in navigator) {
                 navigator.vibrate(100);
@@ -762,9 +762,9 @@ class PushBellApp {
                 case 'basic':
                     notification = await this.notificationAPI.show('PushBell Demo', {
                         ...baseOptions,
-                        body: this.isMobile ? 
-                              '📱 Basic notification working on mobile!' : 
-                              '🔔 Basic notification is working!',
+                        body: this.isMobile ?
+                            '📱 Basic notification working on mobile!' :
+                            '🔔 Basic notification is working!',
                         tag: 'pushbell-basic'
                     });
                     break;
@@ -772,9 +772,9 @@ class PushBellApp {
                 case 'rich':
                     notification = await this.notificationAPI.show('Rich Notification', {
                         ...baseOptions,
-                        body: this.isMobile ? 
-                              '✨ Rich notifications with image support on mobile' : 
-                              '🎨 Rich notification with image and custom styling',
+                        body: this.isMobile ?
+                            '✨ Rich notifications with image support on mobile' :
+                            '🎨 Rich notification with image and custom styling',
                         image: this.createNotificationImage(),
                         tag: 'pushbell-rich',
                         data: { type: 'rich', timestamp: Date.now() }
@@ -793,9 +793,9 @@ class PushBellApp {
 
                     notification = await this.notificationAPI.show('Action Notification', {
                         ...baseOptions,
-                        body: this.isMobile ? 
-                              '⚡ Interactive notification - tap to respond!' : 
-                              '⚡ Interactive notification with action buttons',
+                        body: this.isMobile ?
+                            '⚡ Interactive notification - tap to respond!' :
+                            '⚡ Interactive notification with action buttons',
                         actions: actions,
                         tag: 'pushbell-action',
                         data: { type: 'action', timestamp: Date.now() }
@@ -809,16 +809,16 @@ class PushBellApp {
             if (notification) {
                 this.setupNotificationHandlers(notification, type);
                 this.showStatus(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} notification sent!`, 'success');
-                
+
                 // Track notification for analytics
                 this.trackNotification(type);
             }
 
         } catch (error) {
             console.error(`Error sending ${type} notification:`, error);
-            
+
             let errorMessage = `Failed to send ${type} notification: ${error.message}`;
-            
+
             // Mobile-specific error handling
             if (this.isMobile) {
                 if (error.message.includes('permission')) {
@@ -829,7 +829,7 @@ class PushBellApp {
                     errorMessage = 'This notification type is not supported on your device.';
                 }
             }
-            
+
             this.showStatus(errorMessage, 'error');
         }
     }
@@ -848,12 +848,12 @@ class PushBellApp {
     updateBrowserInfo() {
         const browserInfo = document.getElementById('browser-info');
         const userAgent = navigator.userAgent;
-        
+
         // Enhanced browser detection for mobile
         let browserName = 'Unknown';
         let browserVersion = 'Unknown';
         let deviceInfo = '';
-        
+
         // Mobile-specific detection
         if (this.isMobile) {
             if (this.isIOS) {
@@ -864,7 +864,7 @@ class PushBellApp {
                 } else {
                     deviceInfo = '📱 iOS Device';
                 }
-                
+
                 if (/Safari/.test(userAgent) && !/Chrome/.test(userAgent)) {
                     browserName = 'Safari';
                     const safariMatch = userAgent.match(/Version\/([0-9.]+)/);
@@ -912,10 +912,10 @@ class PushBellApp {
         const hasNotifications = 'Notification' in window;
         const hasServiceWorker = 'serviceWorker' in navigator;
         const hasPushManager = 'PushManager' in window;
-        
+
         // Enhanced support detection for mobile
         const supportLevel = this.determineSupportLevel(hasNotifications, hasServiceWorker, hasPushManager);
-        
+
         browserInfo.innerHTML = `
             <h3>🌐 Browser Information</h3>
             <p><strong>Device:</strong> ${deviceInfo}</p>
@@ -942,7 +942,7 @@ class PushBellApp {
 
     getMobileSpecificInfo() {
         let mobileInfo = '<h4>📱 Mobile Features</h4>';
-        
+
         if (this.isIOS) {
             mobileInfo += `
                 <p><strong>iOS Features:</strong></p>
@@ -953,15 +953,15 @@ class PushBellApp {
                 </ul>
             `;
         }
-        
+
         if ('vibrate' in navigator) {
             mobileInfo += '<p><strong>Haptic Feedback:</strong> ✅ Supported</p>';
         }
-        
+
         if ('orientation' in window || 'onorientationchange' in window) {
             mobileInfo += '<p><strong>Orientation:</strong> ✅ Supported</p>';
         }
-        
+
         return mobileInfo;
     }
 }
@@ -984,12 +984,12 @@ window.addEventListener('unhandledrejection', (event) => {
 // Mobile debugging helper
 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     console.log('Mobile device detected, enabling enhanced logging');
-    
+
     // Log touch events for debugging
     document.addEventListener('touchstart', (e) => {
         console.log('Touch start:', e.touches.length, 'touches');
     }, { passive: true });
-    
+
     // Log orientation changes
     window.addEventListener('orientationchange', () => {
         console.log('Orientation changed:', window.orientation);
