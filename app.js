@@ -55,6 +55,9 @@ class PushBellApp {
             this.updateSplashStatus('Checking permissions...');
             await this.checkInitialPermissions();
             
+            // Force status text update immediately
+            this.updateSplashStatus('Permissions checked');
+            
             // Update UI status immediately after checking permissions
             this.updateUI();
 
@@ -99,10 +102,14 @@ class PushBellApp {
                 console.log('Calling updateUI() after initialization');
                 this.updateUI();
                 
+                // Ensure status text is updated immediately
+                this.updateStatusText();
+                
                 // Failsafe: Ensure UI is updated after a short delay
                 setTimeout(() => {
                     console.log('Failsafe updateUI() call');
                     this.updateUI();
+                    this.updateStatusText();
                 }, 500);
             }, remainingTime);
 
@@ -121,6 +128,7 @@ class PushBellApp {
                 this.log(`Initialization error: ${error.message}`, 'error');
                 this.isInitialized = true; // Mark as initialized even with errors
                 this.updateUI();
+                this.updateStatusText(); // Ensure status is updated even with errors
             }, 1000);
         }
     }
@@ -248,6 +256,37 @@ class PushBellApp {
     enhanceErrorMessages() {
         // More detailed error messages for mobile debugging
         this.originalShowStatus = this.showStatus;
+    }
+
+    /**
+     * Update status text explicitly (fixes stuck "Checking permissions..." issue)
+     */
+    updateStatusText() {
+        if (!this.statusText || !this.isInitialized) return;
+
+        const permission = this.lastPermission || this.notificationAPI.getPermissionStatus();
+        const isSupported = this.notificationAPI.isSupported ? this.notificationAPI.isSupported.basic : ('Notification' in window);
+
+        console.log('Updating status text:', { permission, isSupported });
+
+        if (!isSupported) {
+            this.statusText.textContent = 'Notifications not supported in this browser';
+        } else {
+            switch (permission) {
+                case 'granted':
+                    this.statusText.textContent = 'Notifications are enabled';
+                    break;
+                case 'denied':
+                    this.statusText.textContent = 'Notifications are blocked';
+                    break;
+                case 'default':
+                default:
+                    this.statusText.textContent = this.isMobile ?
+                        'Tap "Request Permission" to enable notifications' :
+                        'Permission not requested yet';
+                    break;
+            }
+        }
     }
 
     /**
@@ -786,41 +825,32 @@ class PushBellApp {
         try {
             console.log('Checking initial permissions...');
 
-            // Quick permission check without long timeouts on mobile
-            const timeoutDuration = this.isMobile ? 3000 : 5000;
-
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Permission check timeout')), timeoutDuration)
-            );
-
             let permission;
-            try {
-                // Use direct Notification.permission for faster results
-                if ('Notification' in window) {
-                    permission = Notification.permission;
-                    console.log('Direct permission check:', permission);
-                } else {
-                    throw new Error('Notifications not supported');
-                }
-            } catch (directError) {
-                console.log('Direct check failed, trying API method:', directError);
-                const permissionPromise = this.notificationAPI.getPermission();
-                permission = await Promise.race([permissionPromise, timeoutPromise]);
+            
+            // Use direct Notification.permission for immediate results
+            if ('Notification' in window) {
+                permission = Notification.permission;
+                console.log('Direct permission check:', permission);
+            } else {
+                console.log('Notifications not supported in this browser');
+                permission = 'unsupported';
             }
 
             console.log('Initial permission status:', permission);
             this.lastPermission = permission;
 
+            // Update UI immediately after getting permission status
+            this.updateUI();
+
         } catch (error) {
             console.error('Error checking initial permissions:', error);
 
-            // Set default state for mobile compatibility
-            if (this.isMobile) {
-                console.log('Mobile fallback: assuming default permission state');
-                this.lastPermission = 'default';
-            } else {
-                this.lastPermission = 'default';
-            }
+            // Set default state for fallback
+            console.log('Fallback: assuming default permission state');
+            this.lastPermission = 'default';
+            
+            // Update UI even with error
+            this.updateUI();
         }
     }
 

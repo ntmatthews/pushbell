@@ -28,7 +28,18 @@ self.addEventListener('install', event => {
             // Cache local resources
             caches.open(CACHE_NAME).then(cache => {
                 console.log('Service Worker: Caching local files');
-                return cache.addAll(localResources);
+                return cache.addAll(localResources).catch(error => {
+                    console.warn('Service Worker: Failed to cache some local resources:', error);
+                    // Try to cache them individually
+                    return Promise.allSettled(
+                        localResources.map(url => 
+                            cache.add(url).catch(err => {
+                                console.warn(`Service Worker: Failed to cache local ${url}:`, err);
+                                return null;
+                            })
+                        )
+                    );
+                });
             }),
             // Cache external resources (with error handling)
             caches.open(CACHE_NAME).then(cache => {
@@ -44,6 +55,7 @@ self.addEventListener('install', event => {
             })
         ]).catch(error => {
             console.error('Service Worker: Install failed:', error);
+            // Don't prevent installation even if caching fails
         })
     );
     self.skipWaiting();
