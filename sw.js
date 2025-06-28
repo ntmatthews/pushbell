@@ -3,17 +3,16 @@
  * Handles background notifications and enhanced features
  */
 
-const CACHE_NAME = 'pushbell-v2';
+const CACHE_NAME = 'pushbell-v4';
 
 // Local resources to cache
 const localResources = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/app.js',
-    '/notification-api.js',
-    '/manifest.json',
-    '/sw.js'
+    '/pushbell/',
+    '/pushbell/index.html',
+    '/pushbell/styles.css',
+    '/pushbell/app.js',
+    '/pushbell/notification-api.js',
+    '/pushbell/manifest.json'
 ];
 
 // External resources to cache (handle separately for better error handling)

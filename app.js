@@ -102,15 +102,25 @@ class PushBellApp {
                 console.log('Calling updateUI() after initialization');
                 this.updateUI();
                 
-                // Ensure status text is updated immediately
+                // Ensure status text is updated immediately and repeatedly
                 this.updateStatusText();
                 
-                // Failsafe: Ensure UI is updated after a short delay
+                // Multiple attempts to ensure status text is updated
                 setTimeout(() => {
-                    console.log('Failsafe updateUI() call');
-                    this.updateUI();
+                    console.log('First status text update attempt');
                     this.updateStatusText();
+                }, 100);
+                
+                setTimeout(() => {
+                    console.log('Second status text update attempt');  
+                    this.updateStatusText();
+                    this.updateUI();
                 }, 500);
+                
+                setTimeout(() => {
+                    console.log('Final status text update attempt');
+                    this.updateStatusText();
+                }, 1000);
             }, remainingTime);
 
         } catch (error) {
@@ -262,12 +272,27 @@ class PushBellApp {
      * Update status text explicitly (fixes stuck "Checking permissions..." issue)
      */
     updateStatusText() {
-        if (!this.statusText || !this.isInitialized) return;
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.updateStatusText());
+            return;
+        }
 
-        const permission = this.lastPermission || this.notificationAPI.getPermissionStatus();
-        const isSupported = this.notificationAPI.isSupported ? this.notificationAPI.isSupported.basic : ('Notification' in window);
+        // Force re-query the element to ensure we have it
+        this.statusText = document.getElementById('statusText');
 
-        console.log('Updating status text:', { permission, isSupported });
+        if (!this.statusText) {
+            console.warn('statusText element not found, trying again in 100ms');
+            setTimeout(() => this.updateStatusText(), 100);
+            return;
+        }
+
+        const permission = this.lastPermission || (this.notificationAPI ? this.notificationAPI.getPermissionStatus() : 'default');
+        const isSupported = this.notificationAPI && this.notificationAPI.isSupported ? 
+            this.notificationAPI.isSupported.basic : 
+            ('Notification' in window);
+
+        console.log('Updating status text:', { permission, isSupported, currentText: this.statusText.textContent });
 
         if (!isSupported) {
             this.statusText.textContent = 'Notifications not supported in this browser';
@@ -287,6 +312,13 @@ class PushBellApp {
                     break;
             }
         }
+
+        console.log('Status text updated to:', this.statusText.textContent);
+        
+        // Force a visual update to ensure the change is reflected
+        this.statusText.style.display = 'none';
+        this.statusText.offsetHeight; // Force reflow
+        this.statusText.style.display = '';
     }
 
     /**
@@ -839,8 +871,8 @@ class PushBellApp {
             console.log('Initial permission status:', permission);
             this.lastPermission = permission;
 
-            // Update UI immediately after getting permission status
-            this.updateUI();
+            // Force immediate status text update
+            this.updateStatusText();
 
         } catch (error) {
             console.error('Error checking initial permissions:', error);
@@ -849,8 +881,8 @@ class PushBellApp {
             console.log('Fallback: assuming default permission state');
             this.lastPermission = 'default';
             
-            // Update UI even with error
-            this.updateUI();
+            // Force immediate status text update
+            this.updateStatusText();
         }
     }
 
@@ -916,7 +948,7 @@ class PushBellApp {
             }
 
             console.log('Registering Service Worker...');
-            const registration = await navigator.serviceWorker.register('/pushbell/sw.js');
+            const registration = await navigator.serviceWorker.register('./sw.js');
 
             this.swRegistration = registration;
             this.swRegistered = true;
@@ -1190,8 +1222,21 @@ window.addEventListener('error', (event) => {
 
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
-    if (window.app && window.app.isMobile) {
-        window.app.showStatus('Promise error occurred. Check console for details.', 'error');
+    
+    // Handle timeout errors gracefully
+    if (event.reason && event.reason.message && event.reason.message.includes('timeout')) {
+        console.log('Timeout error caught and handled gracefully');
+        event.preventDefault(); // Prevent the error from being reported to console
+        
+        // Update status if app is available
+        if (window.app && window.app.updateStatusText) {
+            window.app.updateStatusText();
+        }
+    } else {
+        // Handle other promise errors
+        if (window.app && window.app.isMobile) {
+            window.app.showStatus('Promise error occurred. Check console for details.', 'error');
+        }
     }
 });
 
