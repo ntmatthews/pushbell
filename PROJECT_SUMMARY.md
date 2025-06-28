@@ -5,7 +5,7 @@
 Your PushBell notification API demo website has been successfully enhanced and deployed! Here's what was accomplished:
 
 ## 🚀 Live Demo
-**Your site is now live at:** https://nathanmatthews.github.io/pushbell
+**Your site is now live at:** https://ntmatthews.github.io/pushbell
 
 ## ✨ What Was Enhanced
 
@@ -96,7 +96,7 @@ Your PushBell notification API demo website has been successfully enhanced and d
 3. **VS Code**: Use "Deploy to GitHub Pages" task
 
 ### For Testing
-1. **Live Demo**: Visit https://nathanmatthews.github.io/pushbell
+1. **Live Demo**: Visit https://ntmatthews.github.io/pushbell
 2. **Local**: Use the "Test Notifications" VS Code task
 3. **Mobile**: Test on different devices and browsers
 
@@ -147,7 +147,7 @@ pushbell/
 ## 🎮 Testing the Demo
 
 ### Basic Flow
-1. Visit https://nathanmatthews.github.io/pushbell
+1. Visit https://ntmatthews.github.io/pushbell
 2. Click "Request Permission" to enable notifications
 3. Try different notification types using the buttons
 4. Check the compatibility matrix for your browser
@@ -190,7 +190,7 @@ pushbell/
 ## 🎯 Next Steps
 
 ### Immediate
-1. ✅ **Test the live demo**: https://nathanmatthews.github.io/pushbell
+1. ✅ **Test the live demo**: https://ntmatthews.github.io/pushbell
 2. ✅ **Share with others**: The demo is ready for public use
 3. ✅ **Mobile testing**: Test on various mobile devices
 
@@ -221,7 +221,7 @@ Your PushBell notification demo is now a production-ready, comprehensive demonst
 4. **Provides an excellent user experience** on desktop and mobile
 5. **Serves as a reference implementation** for notification best practices
 
-**Live Demo**: https://nathanmatthews.github.io/pushbell
+**Live Demo**: https://ntmatthews.github.io/pushbell
 **Repository**: https://github.com/ntmatthews/pushbell.git
 
 The project successfully demonstrates modern web development practices with cross-browser compatibility, progressive enhancement, and developer-friendly tooling. 🚀
