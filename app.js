@@ -12,6 +12,9 @@ class PushBellApp {
         this.logContainer = document.getElementById('logContainer');
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
+        this.splashScreen = document.getElementById('splashScreen');
+        this.loadingText = document.querySelector('.loading-text');
+        this.isInitialized = false;
 
         this.init();
     }
@@ -28,7 +31,7 @@ class PushBellApp {
     }
 
     /**
-     * Initialize the application
+     * Initialize the application with splash screen
      */
     async init() {
         console.log('PushBell App initializing...', {
@@ -38,28 +41,94 @@ class PushBellApp {
             userAgent: navigator.userAgent
         });
 
-        this.setupEventListeners();
-        this.setupNotificationEventHandlers();
-        this.updateUI();
-        this.renderCompatibility();
-        this.log('PushBell application initialized', 'info');
+        try {
+            // Update splash screen loading text
+            this.updateSplashStatus('Setting up notification system...');
 
-        this.checkInitialPermissions();
+            // Initialize core features
+            await this.initializeCore();
 
-        // Add mobile-specific initialization
-        if (this.isMobile) {
-            this.initMobileFeatures();
+            // Show splash for minimum time on mobile for better UX
+            const minSplashTime = this.isMobile ? 2000 : 1500;
+            const startTime = Date.now();
+
+            this.updateSplashStatus('Checking permissions...');
+            await this.checkInitialPermissions();
+
+            this.updateSplashStatus('Setting up interface...');
+            this.setupEventListeners();
+            this.setupNotificationEventHandlers();
+
+            this.updateSplashStatus('Loading compatibility info...');
+            this.renderCompatibility();
+
+            // Add mobile-specific initialization
+            if (this.isMobile) {
+                this.updateSplashStatus('Optimizing for mobile...');
+                await this.initMobileFeatures();
+            }
+
+            // iOS specific initialization
+            if (this.isIOS) {
+                this.updateSplashStatus('Configuring iOS features...');
+                await this.initIOSFeatures();
+            }
+
+            this.updateSplashStatus('Finalizing setup...');
+            this.updateBrowserInfo();
+            this.log('PushBell application initialized', 'info');
+
+            // Ensure minimum splash time for smooth experience
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, minSplashTime - elapsedTime);
+
+            this.updateSplashStatus('Ready!');
+            
+            setTimeout(() => {
+                this.hideSplashScreen();
+                this.updateUI();
+                this.isInitialized = true;
+            }, remainingTime);
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            this.updateSplashStatus('Error during initialization');
+            setTimeout(() => {
+                this.hideSplashScreen();
+                this.log(`Initialization error: ${error.message}`, 'error');
+                this.updateUI();
+            }, 1000);
         }
-
-        // iOS specific initialization
-        if (this.isIOS) {
-            this.initIOSFeatures();
-        }
-
-        this.updateBrowserInfo();
     }
 
-    initMobileFeatures() {
+    async initializeCore() {
+        // Wait for notification API to be ready
+        if (this.notificationAPI && typeof this.notificationAPI.init === 'function') {
+            await this.notificationAPI.init();
+        }
+    }
+
+    updateSplashStatus(message) {
+        if (this.loadingText) {
+            this.loadingText.textContent = message;
+        }
+        console.log(`Splash: ${message}`);
+    }
+
+    hideSplashScreen() {
+        if (this.splashScreen) {
+            this.splashScreen.classList.add('fade-out');
+            
+            // Remove splash screen from DOM after animation
+            setTimeout(() => {
+                if (this.splashScreen && this.splashScreen.parentNode) {
+                    this.splashScreen.parentNode.removeChild(this.splashScreen);
+                }
+            }, 500);
+        }
+    }
+
+    async initMobileFeatures() {
         console.log('Initializing mobile features...');
 
         // Prevent zoom on double tap
@@ -79,7 +148,7 @@ class PushBellApp {
         this.optimizeForMobile();
     }
 
-    initIOSFeatures() {
+    async initIOSFeatures() {
         console.log('Initializing iOS features...');
 
         // iOS-specific notification handling
@@ -131,19 +200,23 @@ class PushBellApp {
     addLoadingStates() {
         // Enhanced loading states for mobile
         this.showStatus = (message, type = 'info', persistent = false) => {
+            if (!this.isInitialized) return; // Don't show status during splash
+
             const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = `status ${type}`;
+            if (status) {
+                status.textContent = message;
+                status.className = `status ${type}`;
 
-            if (type === 'loading') {
-                status.classList.add('loading');
-            }
+                if (type === 'loading') {
+                    status.classList.add('loading');
+                }
 
-            if (!persistent && type !== 'loading') {
-                setTimeout(() => {
-                    status.textContent = 'Ready';
-                    status.className = 'status';
-                }, this.isMobile ? 4000 : 3000); // Longer on mobile
+                if (!persistent && type !== 'loading') {
+                    setTimeout(() => {
+                        status.textContent = 'Ready';
+                        status.className = 'status';
+                    }, this.isMobile ? 4000 : 3000); // Longer on mobile
+                }
             }
         };
     }
@@ -241,8 +314,10 @@ class PushBellApp {
             this.clearLog();
         });
 
-        // Auto-update UI when permission changes
+        // Auto-update UI when permission changes (only after initialization)
         setInterval(() => {
+            if (!this.isInitialized) return;
+            
             const currentPermission = this.notificationAPI.getPermissionStatus();
             if (currentPermission !== this.lastPermission) {
                 this.lastPermission = currentPermission;
@@ -288,29 +363,45 @@ class PushBellApp {
      * Update UI based on current state
      */
     updateUI() {
-        const permission = this.notificationAPI.getPermissionStatus();
-        const isSupported = this.notificationAPI.isSupported.basic;
+        // Don't update UI during splash screen
+        if (!this.isInitialized) return;
+
+        const permission = this.lastPermission || this.notificationAPI.getPermissionStatus();
+        const isSupported = this.notificationAPI.isSupported ? this.notificationAPI.isSupported.basic : ('Notification' in window);
 
         // Update status indicator
-        this.statusIndicator.className = 'status-indicator';
+        if (this.statusIndicator) {
+            this.statusIndicator.className = 'status-indicator';
 
-        if (!isSupported) {
-            this.statusIndicator.classList.add('status-unsupported');
-            this.statusText.textContent = 'Notifications not supported in this browser';
-        } else {
-            switch (permission) {
-                case 'granted':
-                    this.statusIndicator.classList.add('status-granted');
-                    this.statusText.textContent = 'Notifications are enabled';
-                    break;
-                case 'denied':
-                    this.statusIndicator.classList.add('status-denied');
-                    this.statusText.textContent = 'Notifications are blocked';
-                    break;
-                case 'default':
-                    this.statusIndicator.classList.add('status-default');
-                    this.statusText.textContent = 'Permission not requested yet';
-                    break;
+            if (!isSupported) {
+                this.statusIndicator.classList.add('status-unsupported');
+                if (this.statusText) {
+                    this.statusText.textContent = 'Notifications not supported in this browser';
+                }
+            } else {
+                switch (permission) {
+                    case 'granted':
+                        this.statusIndicator.classList.add('status-granted');
+                        if (this.statusText) {
+                            this.statusText.textContent = 'Notifications are enabled';
+                        }
+                        break;
+                    case 'denied':
+                        this.statusIndicator.classList.add('status-denied');
+                        if (this.statusText) {
+                            this.statusText.textContent = 'Notifications are blocked';
+                        }
+                        break;
+                    case 'default':
+                    default:
+                        this.statusIndicator.classList.add('status-default');
+                        if (this.statusText) {
+                            this.statusText.textContent = this.isMobile ? 
+                                'Tap "Request Permission" to enable notifications' : 
+                                'Permission not requested yet';
+                        }
+                        break;
+                }
             }
         }
 
@@ -321,24 +412,29 @@ class PushBellApp {
         const actionBtn = document.getElementById('actionNotification');
 
         if (!isSupported) {
-            requestBtn.disabled = true;
-            simpleBtn.disabled = true;
-            richBtn.disabled = true;
-            actionBtn.disabled = true;
-            requestBtn.textContent = 'Not Supported';
+            if (requestBtn) {
+                requestBtn.disabled = true;
+                requestBtn.innerHTML = '<i class="fas fa-times"></i> Not Supported';
+            }
+            [simpleBtn, richBtn, actionBtn].forEach(btn => {
+                if (btn) btn.disabled = true;
+            });
         } else {
-            requestBtn.disabled = permission !== 'default';
-            const canShow = permission === 'granted';
-            simpleBtn.disabled = !canShow;
-            richBtn.disabled = !canShow;
-            actionBtn.disabled = !canShow;
+            if (requestBtn) {
+                requestBtn.disabled = permission !== 'default';
+                const canShow = permission === 'granted';
+                
+                [simpleBtn, richBtn, actionBtn].forEach(btn => {
+                    if (btn) btn.disabled = !canShow;
+                });
 
-            if (permission === 'granted') {
-                requestBtn.innerHTML = '<i class="fas fa-check"></i> Permission Granted';
-            } else if (permission === 'denied') {
-                requestBtn.innerHTML = '<i class="fas fa-ban"></i> Permission Denied';
-            } else {
-                requestBtn.innerHTML = '<i class="fas fa-unlock"></i> Request Permission';
+                if (permission === 'granted') {
+                    requestBtn.innerHTML = '<i class="fas fa-check"></i> Permission Granted';
+                } else if (permission === 'denied') {
+                    requestBtn.innerHTML = '<i class="fas fa-ban"></i> Permission Denied';
+                } else {
+                    requestBtn.innerHTML = '<i class="fas fa-unlock"></i> Request Permission';
+                }
             }
         }
     }
@@ -619,30 +715,42 @@ class PushBellApp {
 
     async checkInitialPermissions() {
         try {
-            this.showStatus('Checking notification permissions...', 'loading');
+            console.log('Checking initial permissions...');
 
-            // Add timeout for mobile compatibility
+            // Quick permission check without long timeouts on mobile
+            const timeoutDuration = this.isMobile ? 3000 : 5000;
+            
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Permission check timeout')), 10000)
+                setTimeout(() => reject(new Error('Permission check timeout')), timeoutDuration)
             );
 
-            const permissionPromise = this.notificationAPI.getPermission();
-
-            const permission = await Promise.race([permissionPromise, timeoutPromise]);
+            let permission;
+            try {
+                // Use direct Notification.permission for faster results
+                if ('Notification' in window) {
+                    permission = Notification.permission;
+                    console.log('Direct permission check:', permission);
+                } else {
+                    throw new Error('Notifications not supported');
+                }
+            } catch (directError) {
+                console.log('Direct check failed, trying API method:', directError);
+                const permissionPromise = this.notificationAPI.getPermission();
+                permission = await Promise.race([permissionPromise, timeoutPromise]);
+            }
 
             console.log('Initial permission status:', permission);
-            this.updatePermissionStatus(permission);
-            this.showStatus('Ready');
+            this.lastPermission = permission;
 
         } catch (error) {
             console.error('Error checking initial permissions:', error);
-            this.showStatus(`Error checking permissions: ${error.message}`, 'error');
-
-            // Fallback for mobile
+            
+            // Set default state for mobile compatibility
             if (this.isMobile) {
-                setTimeout(() => {
-                    this.showStatus('Tap a button to test notifications', 'info');
-                }, 2000);
+                console.log('Mobile fallback: assuming default permission state');
+                this.lastPermission = 'default';
+            } else {
+                this.lastPermission = 'default';
             }
         }
     }

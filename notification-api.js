@@ -56,6 +56,14 @@ class NotificationAPI {
     }
 
     /**
+     * Get current permission status (synchronous for mobile compatibility)
+     */
+    getPermission() {
+        if (!this.isSupported.basic) return 'unsupported';
+        return Notification.permission;
+    }
+
+    /**
      * Get current permission status
      */
     getPermissionStatus() {
