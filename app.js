@@ -75,12 +75,12 @@ class PushBellApp {
             }
 
             this.updateSplashStatus('Finalizing setup...');
-            
+
             // Defer browser info update until DOM is ready
             setTimeout(() => {
                 this.updateBrowserInfo();
             }, 100);
-            
+
             this.log('PushBell application initialized', 'info');
 
             // Ensure minimum splash time for smooth experience
@@ -98,13 +98,13 @@ class PushBellApp {
         } catch (error) {
             console.error('Initialization error:', error);
             this.updateSplashStatus('Error during initialization');
-            
+
             // Enhanced mobile error handling
             if (this.isMobile) {
                 console.log('Mobile initialization error - providing fallback');
                 this.updateSplashStatus('Loading basic features...');
             }
-            
+
             setTimeout(() => {
                 this.hideSplashScreen();
                 this.log(`Initialization error: ${error.message}`, 'error');
@@ -499,7 +499,7 @@ class PushBellApp {
      */
     renderCompatibility() {
         const compatibilityGrid = document.getElementById('compatibilityGrid');
-        
+
         // Null check to prevent errors during initialization
         if (!compatibilityGrid) {
             console.warn('compatibilityGrid element not found, skipping compatibility render');
@@ -987,7 +987,7 @@ class PushBellApp {
 
     updateBrowserInfo() {
         const browserInfo = document.getElementById('browser-info');
-        
+
         // Null check to prevent errors during initialization
         if (!browserInfo) {
             console.warn('browser-info element not found, skipping browser info update');
