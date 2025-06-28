@@ -9,7 +9,7 @@ class PushBellApp {
         this.logContainer = document.getElementById('logContainer');
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
-        
+
         this.init();
     }
 
@@ -164,7 +164,7 @@ class PushBellApp {
 
         // Update status indicator
         this.statusIndicator.className = 'status-indicator';
-        
+
         if (!isSupported) {
             this.statusIndicator.classList.add('status-unsupported');
             this.statusText.textContent = 'Notifications not supported in this browser';
@@ -239,7 +239,7 @@ class PushBellApp {
     async showCustomNotification() {
         const title = document.getElementById('customTitle').value.trim() || 'Custom Notification';
         const body = document.getElementById('customBody').value.trim() || 'This is a custom notification!';
-        
+
         const options = {
             body,
             requireInteraction: document.getElementById('requireInteraction').checked,
@@ -275,10 +275,10 @@ class PushBellApp {
         allBrowsers.forEach(browser => {
             const isCurrentBrowser = browser.key === browserInfo.key;
             const support = isCurrentBrowser ? this.notificationAPI.isSupported : this.getExpectedSupport(browser.key);
-            
+
             const item = document.createElement('div');
             item.className = `compatibility-item ${this.getCompatibilityClass(support)}`;
-            
+
             const supportedFeatures = Object.entries(support)
                 .filter(([key, value]) => value && key !== 'basic')
                 .map(([key]) => this.formatFeatureName(key));
@@ -303,16 +303,16 @@ class PushBellApp {
                 <div class="compatibility-features">
                     ${supportedFeatures.length > 0 ? `
                         <ul>
-                            ${supportedFeatures.map(feature => 
-                                `<li><i class="fas fa-check" style="color: var(--success-color);"></i> ${feature}</li>`
-                            ).join('')}
+                            ${supportedFeatures.map(feature =>
+                `<li><i class="fas fa-check" style="color: var(--success-color);"></i> ${feature}</li>`
+            ).join('')}
                         </ul>
                     ` : ''}
                     ${unsupportedFeatures.length > 0 ? `
                         <ul>
-                            ${unsupportedFeatures.slice(0, 3).map(feature => 
-                                `<li><i class="fas fa-times" style="color: var(--error-color);"></i> ${feature}</li>`
-                            ).join('')}
+                            ${unsupportedFeatures.slice(0, 3).map(feature =>
+                `<li><i class="fas fa-times" style="color: var(--error-color);"></i> ${feature}</li>`
+            ).join('')}
                             ${unsupportedFeatures.length > 3 ? '<li>+ more...</li>' : ''}
                         </ul>
                     ` : ''}
@@ -359,7 +359,7 @@ class PushBellApp {
     getCompatibilityClass(support) {
         const supportedCount = Object.values(support).filter(Boolean).length;
         const totalFeatures = Object.keys(support).length;
-        
+
         if (supportedCount === totalFeatures) return 'supported';
         if (supportedCount > totalFeatures / 2) return 'partial';
         return 'unsupported';
@@ -464,7 +464,7 @@ class PushBellApp {
         const timestamp = new Date().toLocaleTimeString();
         const logEntry = document.createElement('div');
         logEntry.className = `log-entry ${type}`;
-        
+
         logEntry.innerHTML = `
             <span class="timestamp">${timestamp}</span>
             <span class="message">${message}</span>

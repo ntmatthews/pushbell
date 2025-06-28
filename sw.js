@@ -75,7 +75,7 @@ self.addEventListener('fetch', event => {
 // Notification click event
 self.addEventListener('notificationclick', event => {
     console.log('Service Worker: Notification clicked', event);
-    
+
     const notification = event.notification;
     const action = event.action;
 
@@ -119,7 +119,7 @@ self.addEventListener('notificationclick', event => {
 // Notification close event
 self.addEventListener('notificationclose', event => {
     console.log('Service Worker: Notification closed', event);
-    
+
     const notification = event.notification;
     // Track notification dismissal analytics here if needed
 });
@@ -168,7 +168,7 @@ self.addEventListener('push', event => {
 // Background sync event
 self.addEventListener('sync', event => {
     console.log('Service Worker: Background sync', event);
-    
+
     if (event.tag === 'notification-queue') {
         event.waitUntil(processNotificationQueue());
     }
@@ -234,10 +234,10 @@ async function scheduleReminder() {
 async function processNotificationQueue() {
     // Process any queued notifications
     console.log('Service Worker: Processing notification queue');
-    
+
     // This would typically read from IndexedDB or another storage
     // and send any queued notifications
-    
+
     return Promise.resolve();
 }
 
@@ -273,7 +273,7 @@ async function clearCache() {
 if ('periodicSync' in self.registration) {
     self.addEventListener('periodicsync', event => {
         console.log('Service Worker: Periodic sync', event);
-        
+
         if (event.tag === 'notification-check') {
             event.waitUntil(checkForNewNotifications());
         }

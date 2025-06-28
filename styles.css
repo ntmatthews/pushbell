@@ -63,9 +63,22 @@ header {
 }
 
 @keyframes ring {
-    0%, 50%, 100% { transform: rotate(0deg); }
-    10%, 30% { transform: rotate(-10deg); }
-    20%, 40% { transform: rotate(10deg); }
+
+    0%,
+    50%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    10%,
+    30% {
+        transform: rotate(-10deg);
+    }
+
+    20%,
+    40% {
+        transform: rotate(10deg);
+    }
 }
 
 .logo h1 {
@@ -108,10 +121,21 @@ main {
     font-size: 1rem;
 }
 
-.status-granted { color: var(--success-color); }
-.status-denied { color: var(--error-color); }
-.status-default { color: var(--warning-color); }
-.status-unsupported { color: var(--text-secondary); }
+.status-granted {
+    color: var(--success-color);
+}
+
+.status-denied {
+    color: var(--error-color);
+}
+
+.status-default {
+    color: var(--warning-color);
+}
+
+.status-unsupported {
+    color: var(--text-secondary);
+}
 
 /* Demo Section */
 .demo-section {
@@ -174,11 +198,25 @@ main {
     transform: none;
 }
 
-.btn-primary { background: var(--primary-color); }
-.btn-success { background: var(--success-color); }
-.btn-info { background: var(--info-color); }
-.btn-warning { background: var(--warning-color); }
-.btn-secondary { background: var(--text-secondary); }
+.btn-primary {
+    background: var(--primary-color);
+}
+
+.btn-success {
+    background: var(--success-color);
+}
+
+.btn-info {
+    background: var(--info-color);
+}
+
+.btn-warning {
+    background: var(--warning-color);
+}
+
+.btn-secondary {
+    background: var(--text-secondary);
+}
 
 /* Notification Options */
 .notification-options {
@@ -390,10 +428,21 @@ main {
     flex: 1;
 }
 
-.log-entry.success .message { color: #68d391; }
-.log-entry.error .message { color: #fc8181; }
-.log-entry.warning .message { color: #f6ad55; }
-.log-entry.info .message { color: #63b3ed; }
+.log-entry.success .message {
+    color: #68d391;
+}
+
+.log-entry.error .message {
+    color: #fc8181;
+}
+
+.log-entry.warning .message {
+    color: #f6ad55;
+}
+
+.log-entry.info .message {
+    color: #63b3ed;
+}
 
 /* Footer */
 footer {
@@ -448,7 +497,7 @@ footer {
         -webkit-border-radius: 8px;
         border-radius: 8px;
     }
-    
+
     .input-group input,
     .input-group textarea {
         -webkit-appearance: none;
@@ -465,20 +514,20 @@ footer {
         -webkit-user-select: none;
         user-select: none;
     }
-    
+
     .btn,
     .input-group input,
     .input-group textarea {
         -webkit-user-select: none;
         user-select: none;
     }
-    
+
     .input-group input,
     .input-group textarea {
         -webkit-user-select: text;
         user-select: text;
     }
-    
+
     /* Fix iOS Safari 100vh issue */
     .container {
         min-height: 100vh;
@@ -508,6 +557,7 @@ footer {
 
 /* WebKit Focus Styles */
 @media (-webkit-min-device-pixel-ratio: 1) {
+
     .btn:focus,
     .input-group input:focus,
     .input-group textarea:focus {
@@ -523,26 +573,26 @@ footer {
     .container {
         padding: 15px;
     }
-    
+
     .logo h1 {
         font-size: 2.5rem;
     }
-    
+
     .controls {
         grid-template-columns: 1fr;
     }
-    
+
     .option-group {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
-    
+
     .footer-content {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .compatibility-grid {
         grid-template-columns: 1fr;
     }
@@ -553,15 +603,15 @@ footer {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .logo h1 {
         font-size: 2rem;
     }
-    
+
     .subtitle {
         font-size: 1rem;
     }
-    
+
     .demo-section,
     .compatibility-section,
     .log-section {
@@ -578,7 +628,7 @@ footer {
         --bg-secondary: #1a202c;
         --border-color: #4a5568;
     }
-    
+
     .log-container {
         background: #0d1117;
         color: #c9d1d9;
@@ -591,8 +641,15 @@ footer {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .pulse {
@@ -600,8 +657,15 @@ footer {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* Custom scrollbar */

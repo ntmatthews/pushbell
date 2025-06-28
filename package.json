@@ -1,45 +1,45 @@
 {
-  "name": "pushbell",
-  "version": "1.0.0",
-  "description": "A comprehensive cross-browser notification API demo with enhanced features and fallbacks",
-  "main": "index.html",
-  "scripts": {
-    "start": "http-server -p 8080 -o",
-    "dev": "http-server -p 3000 -o",
-    "build": "echo 'No build step required for static site'",
-    "test": "echo 'No tests specified'",
-    "deploy": "gh-pages -d ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ntmatthews/pushbell.git"
-  },
-  "keywords": [
-    "notifications",
-    "web-api",
-    "service-worker",
-    "progressive-web-app",
-    "cross-browser",
-    "demo",
-    "javascript",
-    "browser-compatibility"
-  ],
-  "author": "Nathan Matthews",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ntmatthews/pushbell/issues"
-  },
-  "homepage": "https://ntmatthews.github.io/pushbell",
-  "devDependencies": {
-    "http-server": "^14.1.1",
-    "gh-pages": "^6.1.1"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ],
-  "engines": {
-    "node": ">=14.0.0"
-  }
+    "name": "pushbell",
+    "version": "1.0.0",
+    "description": "A comprehensive cross-browser notification API demo with enhanced features and fallbacks",
+    "main": "index.html",
+    "scripts": {
+        "start": "http-server -p 8080 -o",
+        "dev": "http-server -p 3000 -o",
+        "build": "echo 'No build step required for static site'",
+        "test": "echo 'No tests specified'",
+        "deploy": "gh-pages -d ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ntmatthews/pushbell.git"
+    },
+    "keywords": [
+        "notifications",
+        "web-api",
+        "service-worker",
+        "progressive-web-app",
+        "cross-browser",
+        "demo",
+        "javascript",
+        "browser-compatibility"
+    ],
+    "author": "Nathan Matthews",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ntmatthews/pushbell/issues"
+    },
+    "homepage": "https://ntmatthews.github.io/pushbell",
+    "devDependencies": {
+        "http-server": "^14.1.1",
+        "gh-pages": "^6.1.1"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
+    ],
+    "engines": {
+        "node": ">=14.0.0"
+    }
 }

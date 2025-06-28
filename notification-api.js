@@ -9,7 +9,7 @@ class NotificationAPI {
         this.permission = this.getPermissionStatus();
         this.fallbackQueue = [];
         this.serviceWorkerRegistration = null;
-        
+
         this.init();
     }
 
@@ -299,7 +299,7 @@ class NotificationAPI {
 
         this.fallbackQueue.push(fallback);
         this.onFallbackNotification(fallback);
-        
+
         // Auto-remove after 5 seconds
         setTimeout(() => {
             const index = this.fallbackQueue.indexOf(fallback);
@@ -442,7 +442,7 @@ class NotificationAPI {
         if (this.isSafari()) {
             // Override permission check for Safari
             this.originalRequestPermission = Notification.requestPermission;
-            
+
             // Add Safari-specific permission request
             Notification.requestPermission = async () => {
                 return new Promise((resolve) => {
@@ -486,7 +486,7 @@ class NotificationAPI {
         this.isSupported.image = false;
         this.isSupported.requireInteraction = false;
         this.isSupported.vibrate = false;
-        
+
         // Add touch feedback for mobile
         document.addEventListener('touchstart', () => {
             // Enable notifications on first touch for iOS
@@ -495,12 +495,12 @@ class NotificationAPI {
     }
 
     // Event handlers (to be overridden by the app)
-    onPermissionChange(permission) {}
-    onNotificationClick(event, notification) {}
-    onNotificationClose(event, notification) {}
-    onNotificationError(event, notification) {}
-    onNotificationShow(event, notification) {}
-    onFallbackNotification(fallback) {}
+    onPermissionChange(permission) { }
+    onNotificationClick(event, notification) { }
+    onNotificationClose(event, notification) { }
+    onNotificationError(event, notification) { }
+    onNotificationShow(event, notification) { }
+    onFallbackNotification(fallback) { }
 }
 
 // Export for use in other files
