@@ -6,6 +6,9 @@
 class PushBellApp {
     constructor() {
         this.notificationAPI = new NotificationAPI();
+        this.isMobile = this.detectMobile();
+        this.isIOS = this.detectIOS();
+        this.hasTouch = 'ontouchstart' in window;
         this.logContainer = document.getElementById('logContainer');
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
@@ -13,15 +16,141 @@ class PushBellApp {
         this.init();
     }
 
+    detectMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+            (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) ||
+            window.innerWidth <= 768;
+    }
+
+    detectIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
     /**
      * Initialize the application
      */
     async init() {
+        console.log('PushBell App initializing...', {
+            mobile: this.isMobile,
+            iOS: this.isIOS,
+            hasTouch: this.hasTouch,
+            userAgent: navigator.userAgent
+        });
+
         this.setupEventListeners();
         this.setupNotificationEventHandlers();
         this.updateUI();
         this.renderCompatibility();
         this.log('PushBell application initialized', 'info');
+
+        this.checkInitialPermissions();
+
+        // Add mobile-specific initialization
+        if (this.isMobile) {
+            this.initMobileFeatures();
+        }
+
+        // iOS specific initialization
+        if (this.isIOS) {
+            this.initIOSFeatures();
+        }
+
+        this.updateBrowserInfo();
+    }
+
+    initMobileFeatures() {
+        console.log('Initializing mobile features...');
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Add visual feedback for touch
+        this.addTouchFeedback();
+
+        // Optimize for mobile performance
+        this.optimizeForMobile();
+    }
+
+    initIOSFeatures() {
+        console.log('Initializing iOS features...');
+
+        // iOS-specific notification handling
+        if ('safari' in window && 'pushNotification' in window.safari) {
+            console.log('iOS Safari push notifications detected');
+        }
+
+        // Handle iOS viewport issues
+        this.handleIOSViewport();
+    }
+
+    addTouchFeedback() {
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', () => {
+                button.style.opacity = '0.7';
+            }, { passive: true });
+
+            button.addEventListener('touchend', () => {
+                setTimeout(() => {
+                    button.style.opacity = '1';
+                }, 150);
+            }, { passive: true });
+        });
+    }
+
+    optimizeForMobile() {
+        // Add loading states for better UX
+        this.addLoadingStates();
+
+        // Improve error messages for mobile
+        this.enhanceErrorMessages();
+    }
+
+    handleIOSViewport() {
+        // Fix iOS Safari viewport height issues
+        const setViewportHeight = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+
+        setViewportHeight();
+        window.addEventListener('resize', setViewportHeight);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(setViewportHeight, 500);
+        });
+    }
+
+    addLoadingStates() {
+        // Enhanced loading states for mobile
+        this.showStatus = (message, type = 'info', persistent = false) => {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+
+            if (type === 'loading') {
+                status.classList.add('loading');
+            }
+
+            if (!persistent && type !== 'loading') {
+                setTimeout(() => {
+                    status.textContent = 'Ready';
+                    status.className = 'status';
+                }, this.isMobile ? 4000 : 3000); // Longer on mobile
+            }
+        };
+    }
+
+    enhanceErrorMessages() {
+        // More detailed error messages for mobile debugging
+        this.originalShowStatus = this.showStatus;
     }
 
     /**
@@ -487,12 +616,420 @@ class PushBellApp {
         this.logContainer.innerHTML = '';
         this.log('Activity log cleared', 'info');
     }
+
+    async checkInitialPermissions() {
+        try {
+            this.showStatus('Checking notification permissions...', 'loading');
+
+            // Add timeout for mobile compatibility
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Permission check timeout')), 10000)
+            );
+
+            const permissionPromise = this.notificationAPI.getPermission();
+
+            const permission = await Promise.race([permissionPromise, timeoutPromise]);
+
+            console.log('Initial permission status:', permission);
+            this.updatePermissionStatus(permission);
+            this.showStatus('Ready');
+
+        } catch (error) {
+            console.error('Error checking initial permissions:', error);
+            this.showStatus(`Error checking permissions: ${error.message}`, 'error');
+
+            // Fallback for mobile
+            if (this.isMobile) {
+                setTimeout(() => {
+                    this.showStatus('Tap a button to test notifications', 'info');
+                }, 2000);
+            }
+        }
+    }
+
+    async requestPermission() {
+        try {
+            this.showStatus('Requesting notification permission...', 'loading');
+
+            // Enhanced mobile permission handling
+            if (this.isMobile && this.isIOS) {
+                // iOS requires user gesture for permission request
+                this.showStatus('Please allow notifications when prompted', 'info', true);
+            }
+
+            const permission = await this.notificationAPI.requestPermission();
+            console.log('Permission request result:', permission);
+
+            this.updatePermissionStatus(permission);
+
+            if (permission === 'granted') {
+                this.showStatus('✅ Notifications enabled! Try the demos below.', 'success');
+
+                // Register service worker after permission granted (mobile optimization)
+                if ('serviceWorker' in navigator && !this.swRegistered) {
+                    this.registerServiceWorker();
+                }
+            } else if (permission === 'denied') {
+                this.showStatus('❌ Notifications blocked. Check browser settings to enable.', 'error');
+                this.showBrowserInstructions();
+            } else {
+                this.showStatus('⚠️ Permission request dismissed. Click again to retry.', 'warning');
+            }
+
+        } catch (error) {
+            console.error('Permission request error:', error);
+            this.showStatus(`Error requesting permission: ${error.message}`, 'error');
+
+            // Mobile-specific fallback guidance
+            if (this.isMobile) {
+                setTimeout(() => {
+                    this.showStatus('On mobile, notifications may need to be enabled in browser settings', 'info');
+                }, 3000);
+            }
+        }
+    }
+
+    showBrowserInstructions() {
+        if (this.isMobile) {
+            if (this.isIOS) {
+                this.showStatus('💡 iOS: Go to Settings > Safari > Website Settings > Notifications', 'info');
+            } else {
+                this.showStatus('💡 Android: Tap the lock icon in address bar, then enable notifications', 'info');
+            }
+        } else {
+            this.showStatus('💡 Click the lock icon in your address bar to manage notification settings', 'info');
+        }
+    }
+
+    async registerServiceWorker() {
+        try {
+            if (!('serviceWorker' in navigator)) {
+                console.log('Service Worker not supported');
+                return;
+            }
+
+            console.log('Registering Service Worker...');
+            const registration = await navigator.serviceWorker.register('/pushbell/sw.js');
+
+            this.swRegistration = registration;
+            this.swRegistered = true;
+
+            console.log('Service Worker registered:', registration);
+
+            // Mobile-optimized status message
+            if (this.isMobile) {
+                this.showStatus('📱 Enhanced features enabled for mobile', 'success');
+            }
+
+        } catch (error) {
+            console.error('Service Worker registration failed:', error);
+            // Don't show error to user as it's not critical for basic functionality
+        }
+    }
+
+    async sendNotification(type) {
+        try {
+            // Check permission first
+            const permission = await this.notificationAPI.getPermission();
+            if (permission !== 'granted') {
+                this.showStatus('Please enable notifications first!', 'warning');
+                return;
+            }
+
+            this.showStatus(`Sending ${type} notification...`, 'loading');
+            
+            // Add haptic feedback for mobile
+            if (this.isMobile && 'vibrate' in navigator) {
+                navigator.vibrate(100);
+            }
+
+            let notification;
+            const baseOptions = {
+                icon: this.createNotificationIcon(),
+                badge: this.createNotificationIcon(),
+                tag: `pushbell-${type}-${Date.now()}`,
+                requireInteraction: false, // Don't require interaction on mobile
+                silent: false
+            };
+
+            // Mobile-optimized notification options
+            if (this.isMobile) {
+                baseOptions.requireInteraction = false; // Don't persist on mobile
+                baseOptions.renotify = true; // Allow renotification
+            }
+
+            switch (type) {
+                case 'basic':
+                    notification = await this.notificationAPI.show('PushBell Demo', {
+                        ...baseOptions,
+                        body: this.isMobile ? 
+                              '📱 Basic notification working on mobile!' : 
+                              '🔔 Basic notification is working!',
+                        tag: 'pushbell-basic'
+                    });
+                    break;
+
+                case 'rich':
+                    notification = await this.notificationAPI.show('Rich Notification', {
+                        ...baseOptions,
+                        body: this.isMobile ? 
+                              '✨ Rich notifications with image support on mobile' : 
+                              '🎨 Rich notification with image and custom styling',
+                        image: this.createNotificationImage(),
+                        tag: 'pushbell-rich',
+                        data: { type: 'rich', timestamp: Date.now() }
+                    });
+                    break;
+
+                case 'action':
+                    const actions = this.isMobile ? [
+                        { action: 'view', title: '👀 View', icon: this.createActionIcon('view') },
+                        { action: 'dismiss', title: '❌ Dismiss', icon: this.createActionIcon('dismiss') }
+                    ] : [
+                        { action: 'view', title: '👀 View Details', icon: this.createActionIcon('view') },
+                        { action: 'share', title: '📤 Share', icon: this.createActionIcon('share') },
+                        { action: 'dismiss', title: '❌ Dismiss', icon: this.createActionIcon('dismiss') }
+                    ];
+
+                    notification = await this.notificationAPI.show('Action Notification', {
+                        ...baseOptions,
+                        body: this.isMobile ? 
+                              '⚡ Interactive notification - tap to respond!' : 
+                              '⚡ Interactive notification with action buttons',
+                        actions: actions,
+                        tag: 'pushbell-action',
+                        data: { type: 'action', timestamp: Date.now() }
+                    });
+                    break;
+
+                default:
+                    throw new Error(`Unknown notification type: ${type}`);
+            }
+
+            if (notification) {
+                this.setupNotificationHandlers(notification, type);
+                this.showStatus(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} notification sent!`, 'success');
+                
+                // Track notification for analytics
+                this.trackNotification(type);
+            }
+
+        } catch (error) {
+            console.error(`Error sending ${type} notification:`, error);
+            
+            let errorMessage = `Failed to send ${type} notification: ${error.message}`;
+            
+            // Mobile-specific error handling
+            if (this.isMobile) {
+                if (error.message.includes('permission')) {
+                    errorMessage = 'Notifications blocked. Check your browser settings.';
+                } else if (error.message.includes('quota')) {
+                    errorMessage = 'Too many notifications. Please wait a moment.';
+                } else if (error.message.includes('not supported')) {
+                    errorMessage = 'This notification type is not supported on your device.';
+                }
+            }
+            
+            this.showStatus(errorMessage, 'error');
+        }
+    }
+
+    trackNotification(type) {
+        // Simple analytics tracking
+        const timestamp = new Date().toISOString();
+        console.log(`Notification sent: ${type} at ${timestamp}`, {
+            userAgent: navigator.userAgent,
+            mobile: this.isMobile,
+            iOS: this.isIOS,
+            hasTouch: this.hasTouch
+        });
+    }
+
+    updateBrowserInfo() {
+        const browserInfo = document.getElementById('browser-info');
+        const userAgent = navigator.userAgent;
+        
+        // Enhanced browser detection for mobile
+        let browserName = 'Unknown';
+        let browserVersion = 'Unknown';
+        let deviceInfo = '';
+        
+        // Mobile-specific detection
+        if (this.isMobile) {
+            if (this.isIOS) {
+                if (/iPhone/.test(userAgent)) {
+                    deviceInfo = '📱 iPhone';
+                } else if (/iPad/.test(userAgent)) {
+                    deviceInfo = '📱 iPad';
+                } else {
+                    deviceInfo = '📱 iOS Device';
+                }
+                
+                if (/Safari/.test(userAgent) && !/Chrome/.test(userAgent)) {
+                    browserName = 'Safari';
+                    const safariMatch = userAgent.match(/Version\/([0-9.]+)/);
+                    browserVersion = safariMatch ? safariMatch[1] : 'Unknown';
+                } else if (/Chrome/.test(userAgent)) {
+                    browserName = 'Chrome';
+                    const chromeMatch = userAgent.match(/Chrome\/([0-9.]+)/);
+                    browserVersion = chromeMatch ? chromeMatch[1] : 'Unknown';
+                }
+            } else if (/Android/.test(userAgent)) {
+                deviceInfo = '📱 Android Device';
+                if (/Chrome/.test(userAgent)) {
+                    browserName = 'Chrome';
+                    const chromeMatch = userAgent.match(/Chrome\/([0-9.]+)/);
+                    browserVersion = chromeMatch ? chromeMatch[1] : 'Unknown';
+                } else if (/Firefox/.test(userAgent)) {
+                    browserName = 'Firefox';
+                    const firefoxMatch = userAgent.match(/Firefox\/([0-9.]+)/);
+                    browserVersion = firefoxMatch ? firefoxMatch[1] : 'Unknown';
+                }
+            }
+        } else {
+            // Desktop detection
+            if (/Chrome/.test(userAgent) && !/Edge/.test(userAgent)) {
+                browserName = 'Chrome';
+                const chromeMatch = userAgent.match(/Chrome\/([0-9.]+)/);
+                browserVersion = chromeMatch ? chromeMatch[1] : 'Unknown';
+            } else if (/Firefox/.test(userAgent)) {
+                browserName = 'Firefox';
+                const firefoxMatch = userAgent.match(/Firefox\/([0-9.]+)/);
+                browserVersion = firefoxMatch ? firefoxMatch[1] : 'Unknown';
+            } else if (/Safari/.test(userAgent) && !/Chrome/.test(userAgent)) {
+                browserName = 'Safari';
+                const safariMatch = userAgent.match(/Version\/([0-9.]+)/);
+                browserVersion = safariMatch ? safariMatch[1] : 'Unknown';
+            } else if (/Edge/.test(userAgent)) {
+                browserName = 'Edge';
+                const edgeMatch = userAgent.match(/Edge\/([0-9.]+)/);
+                browserVersion = edgeMatch ? edgeMatch[1] : 'Unknown';
+            }
+            deviceInfo = '💻 Desktop';
+        }
+
+        // Check notification support
+        const hasNotifications = 'Notification' in window;
+        const hasServiceWorker = 'serviceWorker' in navigator;
+        const hasPushManager = 'PushManager' in window;
+        
+        // Enhanced support detection for mobile
+        const supportLevel = this.determineSupportLevel(hasNotifications, hasServiceWorker, hasPushManager);
+        
+        browserInfo.innerHTML = `
+            <h3>🌐 Browser Information</h3>
+            <p><strong>Device:</strong> ${deviceInfo}</p>
+            <p><strong>Browser:</strong> ${browserName} ${browserVersion}</p>
+            <p><strong>Mobile:</strong> ${this.isMobile ? '✅ Yes' : '❌ No'}</p>
+            <p><strong>Touch:</strong> ${this.hasTouch ? '✅ Yes' : '❌ No'}</p>
+            <p><strong>Notifications:</strong> ${hasNotifications ? '✅ Supported' : '❌ Not supported'}</p>
+            <p><strong>Service Worker:</strong> ${hasServiceWorker ? '✅ Supported' : '❌ Not supported'}</p>
+            <p><strong>Push Manager:</strong> ${hasPushManager ? '✅ Supported' : '❌ Not supported'}</p>
+            <p><strong>Support Level:</strong> ${supportLevel}</p>
+            ${this.isMobile ? this.getMobileSpecificInfo() : ''}
+        `;
+    }
+
+    determineSupportLevel(hasNotifications, hasServiceWorker, hasPushManager) {
+        if (hasNotifications && hasServiceWorker && hasPushManager) {
+            return '🟢 Full Support';
+        } else if (hasNotifications) {
+            return '🟡 Basic Support';
+        } else {
+            return '🔴 No Support';
+        }
+    }
+
+    getMobileSpecificInfo() {
+        let mobileInfo = '<h4>📱 Mobile Features</h4>';
+        
+        if (this.isIOS) {
+            mobileInfo += `
+                <p><strong>iOS Features:</strong></p>
+                <ul style="margin: 5px 0; padding-left: 20px;">
+                    <li>Add to Home Screen: ${('standalone' in window.navigator) ? '✅' : '❌'}</li>
+                    <li>Web App Capable: ${window.navigator.standalone ? '✅ Active' : '⚠️ Available'}</li>
+                    <li>Viewport Support: ✅ Optimized</li>
+                </ul>
+            `;
+        }
+        
+        if ('vibrate' in navigator) {
+            mobileInfo += '<p><strong>Haptic Feedback:</strong> ✅ Supported</p>';
+        }
+        
+        if ('orientation' in window || 'onorientationchange' in window) {
+            mobileInfo += '<p><strong>Orientation:</strong> ✅ Supported</p>';
+        }
+        
+        return mobileInfo;
+    }
 }
 
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.pushBellApp = new PushBellApp();
+// Enhanced error handling and debugging for mobile
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    if (window.app && window.app.isMobile) {
+        window.app.showStatus('An error occurred. Check console for details.', 'error');
+    }
 });
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    if (window.app && window.app.isMobile) {
+        window.app.showStatus('Promise error occurred. Check console for details.', 'error');
+    }
+});
+
+// Mobile debugging helper
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    console.log('Mobile device detected, enabling enhanced logging');
+    
+    // Log touch events for debugging
+    document.addEventListener('touchstart', (e) => {
+        console.log('Touch start:', e.touches.length, 'touches');
+    }, { passive: true });
+    
+    // Log orientation changes
+    window.addEventListener('orientationchange', () => {
+        console.log('Orientation changed:', window.orientation);
+        setTimeout(() => {
+            console.log('New dimensions:', window.innerWidth, 'x', window.innerHeight);
+        }, 100);
+    });
+}
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded, initializing PushBell App...');
+    try {
+        window.app = new PushBellApp();
+        console.log('PushBell App initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize PushBell App:', error);
+        const status = document.getElementById('status');
+        if (status) {
+            status.textContent = `Initialization failed: ${error.message}`;
+            status.className = 'status error';
+        }
+    }
+});
+
+// Fallback initialization
+if (document.readyState === 'loading') {
+    // DOM is still loading
+    console.log('DOM is loading, waiting for DOMContentLoaded...');
+} else {
+    // DOM is already loaded
+    console.log('DOM already loaded, initializing immediately...');
+    if (!window.app) {
+        try {
+            window.app = new PushBellApp();
+        } catch (error) {
+            console.error('Failed to initialize PushBell App:', error);
+        }
+    }
+}
 
 // Service worker registration for enhanced features
 if ('serviceWorker' in navigator) {

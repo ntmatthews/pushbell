@@ -15,6 +15,11 @@
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
+/* CSS Custom Properties for mobile viewport */
+:root {
+    --vh: 1vh;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -533,6 +538,11 @@ footer {
         min-height: 100vh;
         min-height: -webkit-fill-available;
     }
+
+    /* Use CSS custom properties for iOS Safari */
+    .container {
+        min-height: calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
 }
 
 /* WebKit Scrollbar Customization */
@@ -616,6 +626,156 @@ footer {
     .compatibility-section,
     .log-section {
         padding: 20px;
+    }
+}
+
+/* Enhanced Mobile and Tablet Styles */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .notification-section {
+        margin: 20px 0;
+        padding: 20px;
+    }
+
+    .notification-type h3 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    button {
+        padding: 15px 20px;
+        font-size: 16px;
+        min-height: 44px; /* iOS touch target */
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .status {
+        font-size: 14px;
+        padding: 12px;
+        margin: 15px 0;
+        border-radius: 8px;
+    }
+
+    /* Improve text readability on mobile */
+    p,
+    .status {
+        line-height: 1.6;
+    }
+
+    /* Better spacing for mobile */
+    .browser-info {
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .browser-info h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Tablet specific styles */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .container {
+        max-width: 700px;
+        margin: 20px auto;
+        padding: 30px;
+    }
+
+    .notification-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .notification-type {
+        margin: 0;
+    }
+}
+
+/* Touch and hover improvements */
+@media (hover: none) and (pointer: coarse) {
+    button:hover {
+        background: var(--primary-color);
+        transform: none;
+    }
+
+    button:active {
+        transform: scale(0.98);
+        background: var(--secondary-color);
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .container {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    button {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 8px;
+    }
+
+    /* Fix for iOS safari viewport units */
+    .container {
+        min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        padding-top: calc(20px + env(safe-area-inset-top));
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+}
+
+/* Loading state improvements */
+.status.loading {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
+}
+
+/* Better button feedback on mobile */
+button:focus {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Improve readability in different orientations */
+@media (orientation: landscape) and (max-height: 500px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .notification-section {
+        margin: 15px 0;
+        padding: 15px;
     }
 }
 
