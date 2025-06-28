@@ -75,7 +75,12 @@ class PushBellApp {
             }
 
             this.updateSplashStatus('Finalizing setup...');
-            this.updateBrowserInfo();
+            
+            // Defer browser info update until DOM is ready
+            setTimeout(() => {
+                this.updateBrowserInfo();
+            }, 100);
+            
             this.log('PushBell application initialized', 'info');
 
             // Ensure minimum splash time for smooth experience
@@ -93,10 +98,18 @@ class PushBellApp {
         } catch (error) {
             console.error('Initialization error:', error);
             this.updateSplashStatus('Error during initialization');
+            
+            // Enhanced mobile error handling
+            if (this.isMobile) {
+                console.log('Mobile initialization error - providing fallback');
+                this.updateSplashStatus('Loading basic features...');
+            }
+            
             setTimeout(() => {
                 this.hideSplashScreen();
                 this.log(`Initialization error: ${error.message}`, 'error');
                 this.updateUI();
+                this.isInitialized = true; // Mark as initialized even with errors
             }, 1000);
         }
     }
@@ -486,6 +499,13 @@ class PushBellApp {
      */
     renderCompatibility() {
         const compatibilityGrid = document.getElementById('compatibilityGrid');
+        
+        // Null check to prevent errors during initialization
+        if (!compatibilityGrid) {
+            console.warn('compatibilityGrid element not found, skipping compatibility render');
+            return;
+        }
+
         const browserInfo = this.notificationAPI.getBrowserInfo();
         const allBrowsers = [
             { key: 'chrome', name: 'Chrome', icon: 'fab fa-chrome' },
@@ -686,6 +706,12 @@ class PushBellApp {
      * Log messages to the activity log
      */
     log(message, type = 'info') {
+        // Null check to prevent errors during initialization
+        if (!this.logContainer) {
+            console.log(`[${type}] ${message}`);
+            return;
+        }
+
         const timestamp = new Date().toLocaleTimeString();
         const logEntry = document.createElement('div');
         logEntry.className = `log-entry ${type}`;
@@ -709,6 +735,12 @@ class PushBellApp {
      * Clear the activity log
      */
     clearLog() {
+        // Null check to prevent errors during initialization
+        if (!this.logContainer) {
+            console.log('Activity log cleared');
+            return;
+        }
+
         this.logContainer.innerHTML = '';
         this.log('Activity log cleared', 'info');
     }
@@ -955,6 +987,13 @@ class PushBellApp {
 
     updateBrowserInfo() {
         const browserInfo = document.getElementById('browser-info');
+        
+        // Null check to prevent errors during initialization
+        if (!browserInfo) {
+            console.warn('browser-info element not found, skipping browser info update');
+            return;
+        }
+
         const userAgent = navigator.userAgent;
 
         // Enhanced browser detection for mobile
