@@ -195,18 +195,15 @@ class NotificationAPI {
             actions: [
                 {
                     action: 'yes',
-                    title: 'Yes',
-                    icon: '✅'
+                    title: '✅ Yes'
                 },
                 {
                     action: 'no',
-                    title: 'No',
-                    icon: '❌'
+                    title: '❌ No'
                 },
                 {
                     action: 'later',
-                    title: 'Remind Later',
-                    icon: '⏰'
+                    title: '⏰ Remind Later'
                 }
             ],
             ...options

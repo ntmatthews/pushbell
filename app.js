@@ -984,8 +984,8 @@ class PushBellApp {
 
             let notification;
             const baseOptions = {
-                icon: this.createNotificationIcon(),
-                badge: this.createNotificationIcon(),
+                icon: this.notificationAPI.getDefaultIcon(),
+                badge: this.notificationAPI.getDefaultBadge(),
                 tag: `pushbell-${type}-${Date.now()}`,
                 requireInteraction: false, // Don't require interaction on mobile
                 silent: false
@@ -1014,7 +1014,7 @@ class PushBellApp {
                         body: this.isMobile ?
                             '✨ Rich notifications with image support on mobile' :
                             '🎨 Rich notification with image and custom styling',
-                        image: this.createNotificationImage(),
+                        image: this.notificationAPI.getDefaultImage(),
                         tag: 'pushbell-rich',
                         data: { type: 'rich', timestamp: Date.now() }
                     });
@@ -1022,12 +1022,12 @@ class PushBellApp {
 
                 case 'action':
                     const actions = this.isMobile ? [
-                        { action: 'view', title: '👀 View', icon: this.createActionIcon('view') },
-                        { action: 'dismiss', title: '❌ Dismiss', icon: this.createActionIcon('dismiss') }
+                        { action: 'view', title: '👀 View' },
+                        { action: 'dismiss', title: '❌ Dismiss' }
                     ] : [
-                        { action: 'view', title: '👀 View Details', icon: this.createActionIcon('view') },
-                        { action: 'share', title: '📤 Share', icon: this.createActionIcon('share') },
-                        { action: 'dismiss', title: '❌ Dismiss', icon: this.createActionIcon('dismiss') }
+                        { action: 'view', title: '👀 View Details' },
+                        { action: 'share', title: '📤 Share' },
+                        { action: 'dismiss', title: '❌ Dismiss' }
                     ];
 
                     notification = await this.notificationAPI.show('Action Notification', {
