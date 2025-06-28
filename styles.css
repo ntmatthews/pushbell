@@ -500,6 +500,40 @@ main {
     font-size: 1.8rem;
 }
 
+.browser-info-card {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.browser-info-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.browser-info-card p {
+    margin: 8px 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.browser-info-card ul {
+    margin: 8px 0;
+    color: var(--text-secondary);
+}
+
+.browser-info-card h4 {
+    margin: 15px 0 10px 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
 .compatibility-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
