@@ -254,3 +254,16 @@ If you encounter any issues or have questions:
 ---
 
 Made with ❤️ for the web development community. Happy coding! 🚀
+
+## 📱 Mobile & Tablet Support
+
+PushBell is fully optimized for mobile and tablet devices:
+
+- **📱 iOS Safari**: Full notification support with iOS-specific optimizations
+- **🤖 Android Chrome**: Complete PWA features and push notification support  
+- **📊 Responsive Design**: Optimized layouts for all screen sizes
+- **👆 Touch Interface**: Enhanced touch targets and haptic feedback
+- **🔄 Orientation Support**: Works in both portrait and landscape modes
+- **⚡ Performance**: Mobile-optimized JavaScript and CSS
+
+See [MOBILE_ENHANCEMENTS.md](MOBILE_ENHANCEMENTS.md) for detailed mobile features and optimizations.
