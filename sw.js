@@ -3,27 +3,48 @@
  * Handles background notifications and enhanced features
  */
 
-const CACHE_NAME = 'pushbell-v1';
-const urlsToCache = [
+const CACHE_NAME = 'pushbell-v2';
+
+// Local resources to cache
+const localResources = [
     '/',
     '/index.html',
     '/styles.css',
     '/app.js',
     '/notification-api.js',
+    '/manifest.json',
+    '/sw.js'
+];
+
+// External resources to cache (handle separately for better error handling)
+const externalResources = [
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
 // Install event - cache resources
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Service Worker: Caching files');
-                return cache.addAll(urlsToCache.filter(url => !url.startsWith('http')));
+        Promise.all([
+            // Cache local resources
+            caches.open(CACHE_NAME).then(cache => {
+                console.log('Service Worker: Caching local files');
+                return cache.addAll(localResources);
+            }),
+            // Cache external resources (with error handling)
+            caches.open(CACHE_NAME).then(cache => {
+                console.log('Service Worker: Caching external resources');
+                return Promise.allSettled(
+                    externalResources.map(url => 
+                        cache.add(url).catch(error => {
+                            console.warn(`Service Worker: Failed to cache ${url}:`, error);
+                            return null; // Continue with other resources
+                        })
+                    )
+                );
             })
-            .catch(error => {
-                console.warn('Service Worker: Cache failed for some resources', error);
-            })
+        ]).catch(error => {
+            console.error('Service Worker: Install failed:', error);
+        })
     );
     self.skipWaiting();
 });
@@ -50,26 +71,74 @@ self.addEventListener('fetch', event => {
     // Only handle GET requests
     if (event.request.method !== 'GET') return;
 
-    // Skip cross-origin requests
-    if (!event.request.url.startsWith(self.location.origin)) {
-        return;
-    }
-
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Return cached version or fetch from network
-                return response || fetch(event.request).catch(() => {
-                    // Fallback for offline scenarios
-                    if (event.request.destination === 'document') {
-                        return caches.match('/index.html');
+    const requestUrl = new URL(event.request.url);
+    
+    // Handle local resources
+    if (requestUrl.origin === self.location.origin) {
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => {
+                    if (response) {
+                        console.log('Service Worker: Serving from cache:', event.request.url);
+                        return response;
                     }
-                });
-            })
-            .catch(error => {
-                console.error('Service Worker: Fetch failed', error);
-            })
-    );
+                    
+                    // Not in cache, fetch from network and cache it
+                    return fetch(event.request)
+                        .then(response => {
+                            // Only cache successful responses
+                            if (response.status === 200) {
+                                const responseClone = response.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(event.request, responseClone);
+                                });
+                            }
+                            return response;
+                        })
+                        .catch(() => {
+                            // Fallback for offline scenarios
+                            if (event.request.destination === 'document') {
+                                return caches.match('/index.html');
+                            }
+                        });
+                })
+                .catch(error => {
+                    console.error('Service Worker: Local fetch failed', error);
+                })
+        );
+    }
+    // Handle external resources (CDN, etc.)
+    else if (externalResources.includes(event.request.url)) {
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => {
+                    if (response) {
+                        console.log('Service Worker: Serving external resource from cache:', event.request.url);
+                        return response;
+                    }
+                    
+                    // Try to fetch from network and cache it
+                    return fetch(event.request, { mode: 'cors' })
+                        .then(response => {
+                            if (response.status === 200) {
+                                const responseClone = response.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(event.request, responseClone).catch(err => {
+                                        console.warn('Service Worker: Failed to cache external resource:', err);
+                                    });
+                                });
+                            }
+                            return response;
+                        })
+                        .catch(error => {
+                            console.warn('Service Worker: External resource fetch failed:', error);
+                            // Return a basic fallback or let it fail gracefully
+                            return new Response('', { status: 404 });
+                        });
+                })
+        );
+    }
+    // For all other requests, just let them pass through
 });
 
 // Notification click event

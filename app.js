@@ -54,6 +54,9 @@ class PushBellApp {
 
             this.updateSplashStatus('Checking permissions...');
             await this.checkInitialPermissions();
+            
+            // Update UI status immediately after checking permissions
+            this.updateUI();
 
             this.updateSplashStatus('Setting up interface...');
             this.setupEventListeners();
@@ -384,18 +387,27 @@ class PushBellApp {
      * Update UI based on current state
      */
     updateUI() {
-        // Don't update UI during splash screen
-        if (!this.isInitialized) {
-            console.log('updateUI() called but app not initialized yet');
-            return;
+        // Allow updates during splash screen for status text updates
+        console.log('updateUI() called - isInitialized:', this.isInitialized);
+
+        // Get current permission status
+        let permission = this.lastPermission;
+        if (!permission && this.notificationAPI) {
+            permission = this.notificationAPI.getPermissionStatus();
         }
+        
+        const isSupported = this.notificationAPI && this.notificationAPI.isSupported ? 
+            this.notificationAPI.isSupported.basic : 
+            ('Notification' in window);
 
-        const permission = this.lastPermission || this.notificationAPI.getPermissionStatus();
-        const isSupported = this.notificationAPI.isSupported ? this.notificationAPI.isSupported.basic : ('Notification' in window);
+        console.log('updateUI() status:', { 
+            permission, 
+            isSupported, 
+            lastPermission: this.lastPermission,
+            statusText: this.statusText ? 'element found' : 'element missing'
+        });
 
-        console.log('updateUI() called:', { permission, isSupported, lastPermission: this.lastPermission });
-
-        // Update status indicator
+        // Always update status indicator and text (even during splash)
         if (this.statusIndicator) {
             this.statusIndicator.className = 'status-indicator';
 
@@ -403,6 +415,7 @@ class PushBellApp {
                 this.statusIndicator.classList.add('status-unsupported');
                 if (this.statusText) {
                     this.statusText.textContent = 'Notifications not supported in this browser';
+                    console.log('Status text updated: not supported');
                 }
             } else {
                 switch (permission) {
@@ -410,12 +423,14 @@ class PushBellApp {
                         this.statusIndicator.classList.add('status-granted');
                         if (this.statusText) {
                             this.statusText.textContent = 'Notifications are enabled';
+                            console.log('Status text updated: granted');
                         }
                         break;
                     case 'denied':
                         this.statusIndicator.classList.add('status-denied');
                         if (this.statusText) {
                             this.statusText.textContent = 'Notifications are blocked';
+                            console.log('Status text updated: denied');
                         }
                         break;
                     case 'default':
@@ -425,10 +440,19 @@ class PushBellApp {
                             this.statusText.textContent = this.isMobile ?
                                 'Tap "Request Permission" to enable notifications' :
                                 'Permission not requested yet';
+                            console.log('Status text updated: default/permission not requested');
                         }
                         break;
                 }
             }
+        } else {
+            console.warn('statusIndicator element not found');
+        }
+
+        // Only update buttons after initialization to avoid interference with splash screen
+        if (!this.isInitialized) {
+            console.log('Skipping button updates - not initialized yet');
+            return;
         }
 
         // Update button states
