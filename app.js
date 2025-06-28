@@ -91,8 +91,16 @@ class PushBellApp {
 
             setTimeout(() => {
                 this.hideSplashScreen();
+                console.log('Setting isInitialized to true');
+                this.isInitialized = true; // Set this BEFORE updateUI()
+                console.log('Calling updateUI() after initialization');
                 this.updateUI();
-                this.isInitialized = true;
+                
+                // Failsafe: Ensure UI is updated after a short delay
+                setTimeout(() => {
+                    console.log('Failsafe updateUI() call');
+                    this.updateUI();
+                }, 500);
             }, remainingTime);
 
         } catch (error) {
@@ -108,8 +116,8 @@ class PushBellApp {
             setTimeout(() => {
                 this.hideSplashScreen();
                 this.log(`Initialization error: ${error.message}`, 'error');
-                this.updateUI();
                 this.isInitialized = true; // Mark as initialized even with errors
+                this.updateUI();
             }, 1000);
         }
     }
@@ -377,10 +385,15 @@ class PushBellApp {
      */
     updateUI() {
         // Don't update UI during splash screen
-        if (!this.isInitialized) return;
+        if (!this.isInitialized) {
+            console.log('updateUI() called but app not initialized yet');
+            return;
+        }
 
         const permission = this.lastPermission || this.notificationAPI.getPermissionStatus();
         const isSupported = this.notificationAPI.isSupported ? this.notificationAPI.isSupported.basic : ('Notification' in window);
+
+        console.log('updateUI() called:', { permission, isSupported, lastPermission: this.lastPermission });
 
         // Update status indicator
         if (this.statusIndicator) {
