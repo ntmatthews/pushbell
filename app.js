@@ -83,7 +83,7 @@ class PushBellApp {
             const remainingTime = Math.max(0, minSplashTime - elapsedTime);
 
             this.updateSplashStatus('Ready!');
-            
+
             setTimeout(() => {
                 this.hideSplashScreen();
                 this.updateUI();
@@ -118,7 +118,7 @@ class PushBellApp {
     hideSplashScreen() {
         if (this.splashScreen) {
             this.splashScreen.classList.add('fade-out');
-            
+
             // Remove splash screen from DOM after animation
             setTimeout(() => {
                 if (this.splashScreen && this.splashScreen.parentNode) {
@@ -317,7 +317,7 @@ class PushBellApp {
         // Auto-update UI when permission changes (only after initialization)
         setInterval(() => {
             if (!this.isInitialized) return;
-            
+
             const currentPermission = this.notificationAPI.getPermissionStatus();
             if (currentPermission !== this.lastPermission) {
                 this.lastPermission = currentPermission;
@@ -396,8 +396,8 @@ class PushBellApp {
                     default:
                         this.statusIndicator.classList.add('status-default');
                         if (this.statusText) {
-                            this.statusText.textContent = this.isMobile ? 
-                                'Tap "Request Permission" to enable notifications' : 
+                            this.statusText.textContent = this.isMobile ?
+                                'Tap "Request Permission" to enable notifications' :
                                 'Permission not requested yet';
                         }
                         break;
@@ -423,7 +423,7 @@ class PushBellApp {
             if (requestBtn) {
                 requestBtn.disabled = permission !== 'default';
                 const canShow = permission === 'granted';
-                
+
                 [simpleBtn, richBtn, actionBtn].forEach(btn => {
                     if (btn) btn.disabled = !canShow;
                 });
@@ -719,7 +719,7 @@ class PushBellApp {
 
             // Quick permission check without long timeouts on mobile
             const timeoutDuration = this.isMobile ? 3000 : 5000;
-            
+
             const timeoutPromise = new Promise((_, reject) =>
                 setTimeout(() => reject(new Error('Permission check timeout')), timeoutDuration)
             );
@@ -744,7 +744,7 @@ class PushBellApp {
 
         } catch (error) {
             console.error('Error checking initial permissions:', error);
-            
+
             // Set default state for mobile compatibility
             if (this.isMobile) {
                 console.log('Mobile fallback: assuming default permission state');

@@ -27,7 +27,8 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for mobile */
+    height: 100dvh;
+    /* Dynamic viewport height for mobile */
     background: var(--primary-gradient);
     display: flex;
     align-items: center;
@@ -60,9 +61,22 @@
 }
 
 @keyframes bellRing {
-    0%, 50%, 100% { transform: rotate(0deg); }
-    10%, 30% { transform: rotate(-15deg); }
-    20%, 40% { transform: rotate(15deg); }
+
+    0%,
+    50%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    10%,
+    30% {
+        transform: rotate(-15deg);
+    }
+
+    20%,
+    40% {
+        transform: rotate(15deg);
+    }
 }
 
 .splash-title {
@@ -97,8 +111,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-text {
@@ -151,8 +170,15 @@
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(180deg);
+    }
 }
 
 /* Mobile splash screen optimizations */
@@ -160,29 +186,29 @@
     .splash-title {
         font-size: 2.5rem;
     }
-    
+
     .splash-subtitle {
         font-size: 1rem;
     }
-    
+
     .bell-icon {
         font-size: 3rem;
     }
-    
+
     .gradient-orb {
         animation-duration: 8s;
     }
-    
+
     .orb1 {
         width: 120px;
         height: 120px;
     }
-    
+
     .orb2 {
         width: 80px;
         height: 80px;
     }
-    
+
     .orb3 {
         width: 60px;
         height: 60px;
